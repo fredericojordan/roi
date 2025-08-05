@@ -88,7 +88,7 @@ def calculate_balance(
     dash.Input("months", "value"),
 )
 def update_graph(initial, rate, contribution, months):
-    if not initial:
+    if not (initial and rate and contribution and months):
         return dash.no_update
 
     dates = date_ranges(months)
