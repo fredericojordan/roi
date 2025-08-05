@@ -55,7 +55,7 @@ app.layout = dmc.MantineProvider(
     theme={"colorScheme": "dark"},
     children=dmc.Container(
         [
-            dmc.Title("ROI Calculator", order=1, my="md"),
+            dmc.Center(dmc.Title("ROI Calculator", order=1, my="md")),
             inputs,
             dash.dcc.Graph(id="roi-graph", config={"displayModeBar": False}),
             dmc.Center(dmc.Text(id="final-value", size="lg", mt="lg")),
