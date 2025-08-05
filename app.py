@@ -109,7 +109,7 @@ def update_graph(initial, rate, contribution, months):
             }
         ],
         "layout": {
-            "title": {"text": "Investment Growth Over Time", "x": 0.5},
+            # "title": {"text": "Investment Growth Over Time", "x": 0.5},
             "xaxis": {"title": "Month"},
             "yaxis": {"title": "Investment Value ($)"},
         },
