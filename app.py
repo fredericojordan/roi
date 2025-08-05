@@ -48,7 +48,6 @@ inputs = dmc.Paper(
     radius="md",
     p="md",
     withBorder=True,
-    mb="xl",
 )
 
 app.layout = dmc.MantineProvider(
@@ -58,7 +57,7 @@ app.layout = dmc.MantineProvider(
             dmc.Center(dmc.Title("ROI Calculator", order=1, my="md")),
             inputs,
             dash.dcc.Graph(id="roi-graph", config={"displayModeBar": False}),
-            dmc.Center(dmc.Text(id="final-value", size="lg", mt="lg")),
+            dmc.Center(dmc.Text(id="final-value", size="lg")),
         ]
     ),
 )
