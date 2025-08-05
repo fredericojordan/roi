@@ -6,7 +6,7 @@ def run():
 
     host = os.getenv("HOST") or "0.0.0.0"
     port = os.getenv("PORT") or 10_000
-    app.run(host=host, port=port, debug=True, dev_tools_hot_reload=True)
+    app.run(host=host, port=port)
 
 
 if __name__ == "__main__":
