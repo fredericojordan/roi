@@ -41,7 +41,8 @@ inputs = dmc.Paper(
                             value=utils.monthly2annual(1.6),
                             step=1,
                         ),
-                    ]
+                    ],
+                    grow=True,
                 ),
                 dmc.NumberInput(
                     label="Monthly Contribution ($)",
@@ -66,6 +67,7 @@ inputs = dmc.Paper(
                         ),
                     ],
                     align="end",
+                    grow=True,
                 ),
             ]
         )
