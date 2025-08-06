@@ -83,7 +83,6 @@ app.layout = dmc.MantineProvider(
             dmc.Center(dmc.Title("ROI Calculator", order=1, my="md")),
             inputs,
             dash.dcc.Graph(id="roi-graph", config={"displayModeBar": False}),
-            dmc.Center(dmc.Text(id="final-value", size="lg")),
         ]
     ),
 )
@@ -108,7 +107,6 @@ def update_equivalent_rate(monthly_rate, annual_rate):
 
 @app.callback(
     dash.Output("roi-graph", "figure"),
-    dash.Output("final-value", "children"),
     dash.Input("initial", "value"),
     dash.Input("monthly-rate", "value"),
     dash.Input("contribution", "value"),
@@ -128,6 +126,7 @@ def update_graph(initial, rate, contribution, duration, duration_period):
             "Value ($)": balance,
         }
     )
+    title = f"{datetime.datetime.strftime(dates[-1], '%B, %Y')}: ${balance[-1]:,.2f}"
     figure = {
         "data": [
             {
@@ -138,16 +137,12 @@ def update_graph(initial, rate, contribution, duration, duration_period):
             }
         ],
         "layout": {
-            # "title": {"text": "Investment Growth Over Time", "x": 0.5},
+            "title": {"text": title, "x": 0.5},
             "xaxis": {"title": "Month"},
             "yaxis": {"title": "Investment Value ($)"},
         },
     }
-
-    final_text = (
-        f"{datetime.datetime.strftime(dates[-1], '%B, %Y')}: ${balance[-1]:,.2f}"
-    )
-    return figure, final_text
+    return figure
 
 
 if __name__ == "__main__":
