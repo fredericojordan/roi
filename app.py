@@ -1,4 +1,5 @@
 import datetime
+import enum
 
 import dash
 import dash_mantine_components as dmc
@@ -8,6 +9,11 @@ import utils
 
 app = dash.Dash(__name__)
 app.title = "ROI Calculator"
+
+
+class Duration(enum.StrEnum):
+    MONTHS = enum.auto()
+    YEARS = enum.auto()
 
 
 inputs = dmc.Paper(
@@ -44,12 +50,22 @@ inputs = dmc.Paper(
                     step=50,
                     min=0,
                 ),
-                dmc.NumberInput(
-                    label="Investment Duration (months)",
-                    id="months",
-                    value=12,
-                    step=1,
-                    min=1,
+                dmc.Group(
+                    [
+                        dmc.NumberInput(
+                            label="Investment Duration",
+                            id="duration_value",
+                            value=12,
+                            step=1,
+                            min=1,
+                        ),
+                        dmc.Select(
+                            id="duration_period",
+                            data=list(Duration),
+                            value=Duration.MONTHS,
+                        ),
+                    ],
+                    align="end",
                 ),
             ]
         )
@@ -96,12 +112,14 @@ def update_equivalent_rate(monthly_rate, annual_rate):
     dash.Input("initial", "value"),
     dash.Input("monthly-rate", "value"),
     dash.Input("contribution", "value"),
-    dash.Input("months", "value"),
+    dash.Input("duration_value", "value"),
+    dash.Input("duration_period", "value"),
 )
-def update_graph(initial, rate, contribution, months):
-    if "" in [initial, rate, contribution, months]:
+def update_graph(initial, rate, contribution, duration, duration_period):
+    if "" in [initial, rate, contribution, duration]:
         return dash.no_update
 
+    months = 12 * duration if duration_period == Duration.YEARS else duration
     dates = utils.date_ranges(months)
     balance = utils.calculate_balance(initial, months, rate / 100, contribution)
     df = pd.DataFrame(
