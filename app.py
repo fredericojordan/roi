@@ -2,9 +2,9 @@ import datetime
 
 import dash
 import dash_mantine_components as dmc
-import numpy as np
 import pandas as pd
-from dateutil.relativedelta import relativedelta
+
+import utils
 
 app = dash.Dash(__name__)
 app.title = "ROI Calculator"
@@ -21,11 +21,21 @@ inputs = dmc.Paper(
                     step=100,
                     min=0,
                 ),
-                dmc.NumberInput(
-                    label="Monthly Return Rate (%)",
-                    id="rate",
-                    value=2,
-                    step=0.1,
+                dmc.Group(
+                    [
+                        dmc.NumberInput(
+                            label="Monthly Return Rate (%)",
+                            id="monthly-rate",
+                            value=1.6,
+                            step=0.1,
+                        ),
+                        dmc.NumberInput(
+                            label="Annual Return Rate (%)",
+                            id="annual-rate",
+                            value=utils.monthly2annual(1.6),
+                            step=1,
+                        ),
+                    ]
                 ),
                 dmc.NumberInput(
                     label="Monthly Contribution ($)",
@@ -63,35 +73,37 @@ app.layout = dmc.MantineProvider(
 )
 
 
-def date_ranges(months: int) -> np.ndarray:
-    now = datetime.datetime.now()
-    return np.array([now + relativedelta(months=i) for i in range(months + 1)])
-
-
-def calculate_balance(
-    initial: float, months: int, rate: float, contribution: float
-) -> np.ndarray:
-    balance = [initial]
-    for i in range(1, months + 1):
-        new_value = balance[-1] * (1 + rate) + contribution
-        balance.append(int(100 * new_value) / 100)
-    return np.array(balance)
+@app.callback(
+    dash.Output("monthly-rate", "value"),
+    dash.Output("annual-rate", "value"),
+    dash.Input("monthly-rate", "value"),
+    dash.Input("annual-rate", "value"),
+    prevent_initial_callback=True,
+)
+def update_equivalent_rate(monthly_rate, annual_rate):
+    match dash.ctx.triggered_id:
+        case "monthly-rate":
+            return dash.no_update, utils.monthly2annual(monthly_rate)
+        case "annual-rate":
+            return utils.annual2monthly(annual_rate), dash.no_update
+        case _:
+            return dash.no_update, dash.no_update
 
 
 @app.callback(
     dash.Output("roi-graph", "figure"),
     dash.Output("final-value", "children"),
     dash.Input("initial", "value"),
-    dash.Input("rate", "value"),
+    dash.Input("monthly-rate", "value"),
     dash.Input("contribution", "value"),
     dash.Input("months", "value"),
 )
 def update_graph(initial, rate, contribution, months):
-    if not (initial and rate and contribution and months):
+    if "" in [initial, rate, contribution, months]:
         return dash.no_update
 
-    dates = date_ranges(months)
-    balance = calculate_balance(initial, months, rate / 100, contribution)
+    dates = utils.date_ranges(months)
+    balance = utils.calculate_balance(initial, months, rate / 100, contribution)
     df = pd.DataFrame(
         {
             "Month": dates,
