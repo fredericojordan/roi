@@ -130,24 +130,24 @@ def update_graph(initial, rate, contribution, duration, duration_period):
     figure.add_trace(
         go.Scatter(x=dates, y=balance, mode="lines+markers", name="Value ($)")
     )
-    # figure.add_trace(
-    #     go.Scatter(
-    #         x=dates,
-    #         y=balance_after_tax,
-    #         mode="lines",
-    #         name="Value after tax ($)",
-    #         line=dict(color="green"),
-    #     )
-    # )
+    figure.add_trace(
+        go.Scatter(
+            x=dates,
+            y=balance_after_tax,
+            mode="lines+markers",
+            name="Value after tax ($)",
+            line=dict(color="green"),
+        )
+    )
     figure.update_layout(
         title={
             "text": title,
             "x": 0.5,
             "xanchor": "center",
-            # "subtitle": dict(
-            #     text=subtitle,
-            #     font=dict(color="gray", size=13),
-            # ),
+            "subtitle": dict(
+                text=subtitle,
+                font=dict(color="gray", size=13),
+            ),
         }
     )
     utils.add_tax_ranges(figure, list(dates))
