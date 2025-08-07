@@ -3,7 +3,7 @@ import enum
 
 import dash
 import dash_mantine_components as dmc
-import pandas as pd
+import plotly.graph_objs as go
 
 import utils
 
@@ -56,14 +56,14 @@ inputs = dmc.Paper(
                         dmc.NumberInput(
                             label="Investment Duration",
                             id="duration_value",
-                            value=12,
+                            value=3,
                             step=1,
                             min=1,
                         ),
                         dmc.Select(
                             id="duration_period",
                             data=list(Duration),
-                            value=Duration.MONTHS,
+                            value=Duration.YEARS,
                         ),
                     ],
                     align="end",
@@ -120,30 +120,37 @@ def update_graph(initial, rate, contribution, duration, duration_period):
         return dash.no_update
 
     months = 12 * duration if duration_period == Duration.YEARS else duration
-    dates = utils.date_ranges(months)
-    balance = utils.calculate_balance(initial, months, rate / 100, contribution)
-    df = pd.DataFrame(
-        {
-            "Month": dates,
-            "Value ($)": balance,
-        }
+    dates = utils.monthly_date_range(months)
+    balance, balance_after_tax = utils.calculate_balances(
+        initial, months, rate / 100, contribution
     )
     title = f"{datetime.datetime.strftime(dates[-1], '%B, %Y')}: ${balance[-1]:,.2f}"
-    figure = {
-        "data": [
-            {
-                "x": df["Month"],
-                "y": df["Value ($)"],
-                "type": "line",
-                "name": "Investment Growth",
-            }
-        ],
-        "layout": {
-            "title": {"text": title, "x": 0.5},
-            "xaxis": {"title": "Month"},
-            "yaxis": {"title": "Investment Value ($)"},
-        },
-    }
+    subtitle = f"After tax: ${balance_after_tax[-1]:,.2f}"
+    figure = go.Figure()
+    figure.add_trace(
+        go.Scatter(x=dates, y=balance, mode="lines+markers", name="Value ($)")
+    )
+    # figure.add_trace(
+    #     go.Scatter(
+    #         x=dates,
+    #         y=balance_after_tax,
+    #         mode="lines",
+    #         name="Value after tax ($)",
+    #         line=dict(color="green"),
+    #     )
+    # )
+    figure.update_layout(
+        title={
+            "text": title,
+            "x": 0.5,
+            "xanchor": "center",
+            # "subtitle": dict(
+            #     text=subtitle,
+            #     font=dict(color="gray", size=13),
+            # ),
+        }
+    )
+    utils.add_tax_ranges(figure, list(dates))
     return figure
 
 
